@@ -19,10 +19,18 @@ def download_and_extract_data(zip_key):
         Params={'Bucket': bucket_name, 'Key': zip_key},
         ExpiresIn=7200  # URL expiration time in seconds (adjust as needed)
     )
-    url_response = requests.get(url)
-    
-    with zipfile.ZipFile(BytesIO(url_response.content)) as z:
-        z.extractall('.')
+    try:
+        url_response = requests.get(url)
+        url_response.raise_for_status()  # Raise an error for bad responses
+        with zipfile.ZipFile(BytesIO(url_response.content)) as z:
+            z.extractall('.')
+        print("Data extraction successful.")
+    except requests.exceptions.RequestException as e:
+        print("Error downloading data:", e)
+    except zipfile.BadZipFile:
+        print("The downloaded file is not a valid zip file.")
+    except Exception as e:
+        print("An unexpected error occurred:", e)
 
 def load_data(csv_path, base_path, img_size=(224, 224)):
     """
