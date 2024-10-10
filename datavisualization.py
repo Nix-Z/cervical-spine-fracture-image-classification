@@ -3,6 +3,7 @@ import random
 import pydicom
 import cv2
 from PIL import Image
+from data_extraction import load_data
 
 def visualize_data(csv_path, base_dir):
     """
