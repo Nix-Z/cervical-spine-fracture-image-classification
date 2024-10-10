@@ -68,4 +68,4 @@ download_and_extract_data(zip_key)
 base_dir = 'rsna-2022-cervical-spine-fracture-detection/train_images'
 csv_path = 'rsna-2022-cervical-spine-fracture-detection/train.csv'
 
-patient_labels, images = load_data(csv_path, base_dir)
+load_data(csv_path, base_dir)
