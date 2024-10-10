@@ -9,7 +9,7 @@ pipeline{
         }
         stage("Extract Data"){
             steps{
-                sh 'python3 extract_data.py'
+                sh 'python3 data_extraction.py'
             }
         }
         stage("Visualize Data"){
