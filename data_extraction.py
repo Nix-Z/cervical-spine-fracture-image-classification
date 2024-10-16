@@ -14,16 +14,45 @@ bucket_name = 'deeplearning-mlops'
 
 def download_and_extract_data(zip_key):
     """Download and extract the dataset from S3."""
+    print('Something is happening...')
     url = s3.generate_presigned_url(
         ClientMethod='get_object',
         Params={'Bucket': bucket_name, 'Key': zip_key},
-        ExpiresIn=7200  # URL expiration time in seconds (adjust as needed)
+        ExpiresIn=7200  # URL expiration time in seconds
     )
-    url_response = requests.get(url)
-    url_response.raise_for_status()  # Raise an error for bad responses
-    with zipfile.ZipFile(BytesIO(url_response.content)) as z:
-        z.extractall('.')
-    print("Data extraction successful.")
+
+    print("Passed progress point 1.")
+    
+    try:
+        url_response = requests.get(url)
+        url_response.raise_for_status()  # Raises an error for bad responses (4xx or 5xx)
+        # Process the response here
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+    
+    # Check if the response is successful
+    if url_response.status_code != 200:
+        print(f"Failed to download file: {url_response.status_code} - {url_response.text}")
+        return
+    
+    print("Passed progress point 2.")
+
+    # Check if the response content is a valid ZIP file
+    content_type = url_response.headers.get('Content-Type', '')
+    if 'application/zip' not in content_type:
+        print(f"The downloaded content is not a ZIP file. Content-Type: {content_type}")
+        return
+    
+    print("Passed progress point 3.")
+
+    try:
+        with zipfile.ZipFile(BytesIO(url_response.content)) as z:
+            z.extractall('.')
+            print("Data extracted successfully.")
+    except zipfile.BadZipFile:
+        print("Error: The file downloaded is not a valid ZIP file.")
+    
+    print("This might be an issue.")
 
 def load_data(csv_path, base_path, img_size=(224, 224)):
     """
